@@ -35,9 +35,9 @@ public class Message implements Runnable {
         Timestamp stamp = this.clock.stamp();
         System.out.println("Send: " + this.message + ", " + this.Sm.buffer.toString() + ", " + stamp);
 
+        this.Sm.put(this.destinationId, (VectorTimestamp) stamp);
         OrderingBuffer SmCopy = this.Sm.copy();
 
-        this.Sm.put(this.destinationId, (VectorTimestamp) stamp);
         try {
             Thread.sleep(this.arrivalDelay);
         } catch (InterruptedException e) {
