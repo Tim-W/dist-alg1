@@ -1,44 +1,49 @@
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws AlreadyBoundException, RemoteException, NotBoundException {
-        Process p1 = new Process(1, 3);
-        Process p2 = new Process(2, 3);
-        Process p3 = new Process(3, 3);
+    public static void main(String[] args) throws AlreadyBoundException, IOException, NotBoundException {
+        ProcessBuilder pb1 =
+                new ProcessBuilder("java", "ProcessStarter", "../../input1");
+        ProcessBuilder pb2 =
+                new ProcessBuilder("java", "ProcessStarter", "../../input2");
+        ProcessBuilder pb3 =
+                new ProcessBuilder("java", "ProcessStarter", "../../input3");
 
-        List<Pair<Process, String>> p1Messages = new ArrayList<>();
-        p1Messages.add(new Pair<>(p3, "p1 -> p3"));
-        p1Messages.add(new Pair<>(p2, "p1 -> p2"));
-        p1.setOutbox(p1Messages);
+        File dir = new File("target/classes");
 
-        List<Pair<Process, String>> p2Messages = new ArrayList<>();
-        p2Messages.add(new Pair<>(p3, "p2 -> p3"));
-//        p2Messages.add(new Pair<>(p1, "p2 -> p1"));
-        p2.setOutbox(p2Messages);
+        File log1 = new File("log1");
+        File log2 = new File("log2");
+        File log3 = new File("log3");
 
-        List<Pair<Process, String>> p3Messages = new ArrayList<>();
-//        p3Messages.add(new Pair<>(p1, "p3 -> p1"));
-//        p3Messages.add(new Pair<>(p2, "p3 -> p2"));
-        p3.setOutbox(p3Messages);
+        PrintWriter writer = new PrintWriter(log1);
+        writer.print("");
+        writer.close();
+        PrintWriter writer2 = new PrintWriter(log2);
+        writer2.print("");
+        writer2.close();
+        PrintWriter writer3 = new PrintWriter(log3);
+        writer3.print("");
+        writer3.close();
 
-        new Thread(p1).start();
-        new Thread(p2).start();
-        new Thread(p3).start();
+        pb1.redirectErrorStream(true);
+        pb1.redirectOutput(ProcessBuilder.Redirect.appendTo(log1));
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
-                    p1.unbind();
-                    p2.unbind();
-                    p3.unbind();
-                } catch (RemoteException | NotBoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        pb2.redirectErrorStream(true);
+        pb2.redirectOutput(ProcessBuilder.Redirect.appendTo(log2));
+
+        pb3.redirectErrorStream(true);
+        pb3.redirectOutput(ProcessBuilder.Redirect.appendTo(log3));
+
+        pb1.directory(dir);
+        pb2.directory(dir);
+        pb3.directory(dir);
+
+        pb1.start();
+        pb2.start();
+        pb3.start();
     }
 }

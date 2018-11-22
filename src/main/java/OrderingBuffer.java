@@ -14,7 +14,7 @@ public class OrderingBuffer implements Serializable {
     }
 
     public boolean contains(Id id) {
-       return buffer.containsKey(id);
+        return buffer.containsKey(id);
     }
 
     public VectorTimestamp get(Id id) {
@@ -23,10 +23,10 @@ public class OrderingBuffer implements Serializable {
 
     public void merge(OrderingBuffer other) {
         other.buffer.forEach((id, ts) -> {
-            if(!buffer.containsKey(id)) {
+            if (!buffer.containsKey(id)) {
                 buffer.put(id, ts);
             } else {
-                if(buffer.get(id).leq(other.buffer.get(id))) {
+                if (buffer.get(id).leq(other.buffer.get(id))) {
                     buffer.put(id, ts);
                 }
             }
