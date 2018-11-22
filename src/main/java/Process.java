@@ -54,7 +54,7 @@ public class Process implements Node, Runnable {
                 Node destination = (Node) this.registry.lookup(outgoingMessage.destination + "");
 
                 Message message = new Message(outgoingMessage.message, S, clock,
-                        outgoingMessage.startDelay, outgoingMessage.arrivalDelay, destination, this, clock.stamp());
+                        outgoingMessage.startDelay, outgoingMessage.arrivalDelay, destination, this, clock.stamp(), new Id(outgoingMessage.destination));
                 new Thread(message).start();
             } catch (RemoteException | NotBoundException e) {
                 e.printStackTrace();
@@ -80,11 +80,11 @@ public class Process implements Node, Runnable {
 
     @Override
     public void receiveMessage(String message, OrderingBuffer Sm, Timestamp Vm) throws RemoteException {
-        System.out.println("Receive: " + message + ", " + Vm.toString() + ", " + Sm.buffer.toString());
+        System.out.println("Receive: " + message + ", " + Sm.buffer.toString() + ", " + Vm.toString());
         if (canDeliver(Sm)) {
             deliver(message, Sm, Vm);
         } else {
-            B.add(new Message(message, Sm, null, 0, 0, null, null, Vm));
+            B.add(new Message(message, Sm, null, 0, 0, null, null, Vm, new Id(0)));
         }
     }
 
@@ -97,21 +97,20 @@ public class Process implements Node, Runnable {
         clock.update(Vm);
         clock.increment();
         S.merge(Sm);
-        System.out.println("Deliver: " + message + ", " + clock.stamp().toString() + ", " + Sm.buffer.toString());
+        System.out.println("Deliver: " + message + ", " + Sm.buffer.toString() + ", " + clock.stamp().toString());
         for (Message m : B) {
             if (canDeliver(m.Sm)) {
                 clock.update(m.timestamp);
                 clock.increment();
-                B.remove(m);
                 S.merge(m.Sm);
-                System.out.println("Deliver: " + m.message + ", " + clock.stamp().toString() + ", " + Sm.buffer.toString());
+                System.out.println("Deliver: " + m.message + ", " + Sm.buffer.toString() + ", " + clock.stamp().toString());
             }
         }
-
     }
 
     private boolean canDeliver(OrderingBuffer Sm) {
         if (Sm.contains(id)) {
+//            System.out.println(Sm.get(id).toString() + " < " + clock.stamp() + "?");
             return Sm.get(id).leq(clock.stamp());
         }
         return true;

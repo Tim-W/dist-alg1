@@ -9,6 +9,14 @@ public class OrderingBuffer implements Serializable {
         buffer = new HashMap<>();
     }
 
+    public OrderingBuffer copy() {
+        OrderingBuffer bufferCopy = new OrderingBuffer();
+        for (Id id : buffer.keySet()) {
+            bufferCopy.buffer.put(id, buffer.get(id));
+        }
+        return bufferCopy;
+    }
+
     public void put(Id id, VectorTimestamp ts) {
         buffer.put(id, ts);
     }

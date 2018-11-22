@@ -24,6 +24,6 @@ public class VectorClock implements Clock {
     }
 
     public Timestamp stamp() {
-        return new VectorTimestamp(clock);
+        return new VectorTimestamp(clock.clone());
     }
 }

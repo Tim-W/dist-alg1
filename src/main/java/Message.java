@@ -1,7 +1,7 @@
 import java.rmi.RemoteException;
 
 public class Message implements Runnable {
-    public final OrderingBuffer Sm;
+    public OrderingBuffer Sm;
     private final Clock clock;
     public final String message;
     private final int startDelay;
@@ -9,8 +9,9 @@ public class Message implements Runnable {
     private final Node destination;
     private final Process process;
     public final Timestamp timestamp;
+    private final Id destinationId;
 
-    public Message(String message, OrderingBuffer Sm, Clock clock, int startDelay, int arrivalDelay, Node destination, Process process, Timestamp timestamp) {
+    public Message(String message, OrderingBuffer Sm, Clock clock, int startDelay, int arrivalDelay, Node destination, Process process, Timestamp timestamp, Id destinationId) {
         this.Sm = Sm;
         this.message = message;
         this.clock = clock;
@@ -19,6 +20,7 @@ public class Message implements Runnable {
         this.destination = destination;
         this.process = process;
         this.timestamp = timestamp;
+        this.destinationId = destinationId;
     }
 
     @Override
@@ -29,12 +31,13 @@ public class Message implements Runnable {
             e.printStackTrace();
         }
         this.clock.increment();
-        this.process.getS().put(this.process.getId(), (VectorTimestamp) this.process.getClock().stamp());
 
         Timestamp stamp = this.clock.stamp();
+        System.out.println("Send: " + this.message + ", " + this.Sm.buffer.toString() + ", " + stamp);
 
-        System.out.println("Send: " + this.message + ", " + this.clock.stamp() + ", " + this.Sm.buffer.toString());
+        OrderingBuffer SmCopy = this.Sm.copy();
 
+        this.Sm.put(this.destinationId, (VectorTimestamp) stamp);
         try {
             Thread.sleep(this.arrivalDelay);
         } catch (InterruptedException e) {
@@ -42,7 +45,7 @@ public class Message implements Runnable {
         }
 
         try {
-            destination.receiveMessage(this.message, this.Sm, stamp);
+            destination.receiveMessage(this.message, SmCopy, stamp);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

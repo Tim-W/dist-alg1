@@ -7,17 +7,17 @@ import java.rmi.NotBoundException;
 public class Main {
     public static void main(String[] args) throws AlreadyBoundException, IOException, NotBoundException {
         ProcessBuilder pb1 =
-                new ProcessBuilder("java", "ProcessStarter", "../../input1");
+                new ProcessBuilder("java", "ProcessStarter", "../../test-resources/input1");
         ProcessBuilder pb2 =
-                new ProcessBuilder("java", "ProcessStarter", "../../input2");
+                new ProcessBuilder("java", "ProcessStarter", "../../test-resources/input2");
         ProcessBuilder pb3 =
-                new ProcessBuilder("java", "ProcessStarter", "../../input3");
+                new ProcessBuilder("java", "ProcessStarter", "../../test-resources/input3");
 
         File dir = new File("target/classes");
 
-        File log1 = new File("log1");
-        File log2 = new File("log2");
-        File log3 = new File("log3");
+        File log1 = new File("test-resources/log1");
+        File log2 = new File("test-resources/log2");
+        File log3 = new File("test-resources/log3");
 
         PrintWriter writer = new PrintWriter(log1);
         writer.print("");
