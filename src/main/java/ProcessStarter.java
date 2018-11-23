@@ -14,12 +14,13 @@ public class ProcessStarter {
 
         List<ProcessMessage> processMessages = new ArrayList<>();
         int processId = sc.nextInt();
-        int networkSize = sc.nextInt();
+        int networkSize = Integer.parseInt(args[1]);
 
         while (sc.hasNextInt()) {
             int destination = sc.nextInt();
             int startDelay = sc.nextInt();
             int endDelay = sc.nextInt();
+            System.out.println(processId + " -> " + destination + " " + startDelay + " " + endDelay + " " + destination + "");
             processMessages.add(new ProcessMessage(processId + " -> " + destination, startDelay, endDelay, destination));
         }
 
