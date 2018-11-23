@@ -14,6 +14,7 @@ public class Process implements Node, Runnable {
     private final OrderingBuffer S;
     private final Registry registry;
     private List<ProcessMessage> outbox;
+    private List<Message> delivered = new ArrayList<>();
 
     public Process(int id, int networkSize) throws RemoteException, AlreadyBoundException {
         this.id = new Id(id);
@@ -53,6 +54,7 @@ public class Process implements Node, Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        this.flush();
         try {
             this.unbind();
         } catch (RemoteException e) {
@@ -85,13 +87,15 @@ public class Process implements Node, Runnable {
         clock.update(message.timestamp);
         clock.increment();
         S.merge(message.Sm);
-        System.out.println("Deliver: " + message.message + ", " + message.Sm.buffer.toString() + ", " + message.timestamp.toString());
+        delivered.add(message);
+        System.out.println("Deliver: " + message.message + ", " + S.buffer.toString() + ", " + message.timestamp.toString());
         List<Message> BCopy = new ArrayList<>(B);
         for (Message m : BCopy) {
             if (canDeliver(m.Sm)) {
                 deliver(m);
             }
         }
+
     }
 
     private boolean canDeliver(OrderingBuffer Sm) {
@@ -99,5 +103,18 @@ public class Process implements Node, Runnable {
             return Sm.get(id).leq(clock.stamp());
         }
         return true;
+    }
+
+    void flush() {
+        for (int i = 0; i < this.delivered.size() - 1; i++) {
+            VectorTimestamp prev = (VectorTimestamp) this.delivered.get(i).timestamp;
+            VectorTimestamp next = (VectorTimestamp) this.delivered.get(i + 1).timestamp;
+            if (prev.gt(next)) {
+                System.out.println("Timestamp " + prev + " is not less than or concurrent with " + next);
+                System.out.println("Causal ordering failed in Process " + id + " :(");
+                return;
+            }
+        }
+        System.out.println("Message order correct in Process " + id + "! :D (" + delivered.size() + " messages)");
     }
 }

@@ -22,4 +22,13 @@ public class VectorTimestamp implements Timestamp {
         }
         return output;
     }
+
+    public boolean gt(Timestamp other) {
+        VectorTimestamp vOther = (VectorTimestamp) other;
+        boolean gt = true;
+        for(int i = 0; i < clock.length; i++) {
+            gt = gt && (clock[i] > vOther.clock[i]);
+        }
+        return gt;
+    }
 }
