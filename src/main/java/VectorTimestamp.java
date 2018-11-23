@@ -5,6 +5,7 @@ public class VectorTimestamp implements Timestamp {
         this.clock = clock;
     }
 
+    @Override
     public boolean leq(Timestamp other) {
         VectorTimestamp vOther = (VectorTimestamp) other;
         boolean leq = true;

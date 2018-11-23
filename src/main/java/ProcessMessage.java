@@ -1,4 +1,7 @@
-public class ProcessMessage {
+/**
+ * Message sent over the network.
+ */
+class ProcessMessage {
     public final String message;
     public final int destination;
     public final int startDelay;

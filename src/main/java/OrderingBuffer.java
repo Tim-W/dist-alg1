@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OrderingBuffer implements Serializable {
-    Map<Id, VectorTimestamp> buffer;
+    final Map<Id, VectorTimestamp> buffer;
 
     public OrderingBuffer() {
         buffer = new HashMap<>();

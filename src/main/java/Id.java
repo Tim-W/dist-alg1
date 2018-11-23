@@ -7,10 +7,6 @@ public class Id implements Serializable {
         this.id = id;
     }
 
-    public int id() {
-        return id;
-    }
-
     public String toString() {
         return "" + id;
     }

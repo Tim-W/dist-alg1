@@ -1,7 +1,7 @@
 public interface Clock {
-    public void increment();
+    void increment();
 
-    public void update(Timestamp other);
+    void update(Timestamp other);
 
-    public Timestamp stamp();
+    Timestamp stamp();
 }

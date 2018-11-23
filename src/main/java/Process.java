@@ -26,18 +26,6 @@ public class Process implements Node, Runnable {
         registry.bind(this.id.toString(), stub);
     }
 
-    public Clock getClock() {
-        return clock;
-    }
-
-    public OrderingBuffer getS() {
-        return S;
-    }
-
-    public Id getId() {
-        return id;
-    }
-
     public void run() {
         // Bind the remote object's stub in the registry
         System.err.println(this.id.toString() + ".run()");
@@ -54,7 +42,7 @@ public class Process implements Node, Runnable {
                 Node destination = (Node) this.registry.lookup(outgoingMessage.destination + "");
 
                 Message message = new Message(outgoingMessage.message, S, clock,
-                        outgoingMessage.startDelay, outgoingMessage.arrivalDelay, destination, this, clock.stamp(), new Id(outgoingMessage.destination));
+                        outgoingMessage.startDelay, outgoingMessage.arrivalDelay, destination, clock.stamp(), new Id(outgoingMessage.destination));
                 new Thread(message).start();
             } catch (RemoteException | NotBoundException e) {
                 e.printStackTrace();
@@ -81,10 +69,10 @@ public class Process implements Node, Runnable {
     @Override
     public void receiveMessage(String message, OrderingBuffer Sm, Timestamp Vm) throws RemoteException {
         System.out.println("Receive: " + message + ", " + Sm.buffer.toString() + ", " + Vm.toString());
+        Message simplifiedMessage = new Message(message, Sm, null, 0, 0, null, Vm, new Id(0));
+        B.add(simplifiedMessage);
         if (canDeliver(Sm)) {
-            deliver(message, Sm, Vm);
-        } else {
-            B.add(new Message(message, Sm, null, 0, 0, null, null, Vm, new Id(0)));
+            deliver(simplifiedMessage);
         }
     }
 
@@ -92,25 +80,22 @@ public class Process implements Node, Runnable {
         this.outbox = outgoing;
     }
 
-    @Override
-    public void deliver(String message, OrderingBuffer Sm, Timestamp Vm) throws RemoteException {
-        clock.update(Vm);
+    public void deliver(Message message) throws RemoteException {
+        B.remove(message);
+        clock.update(message.timestamp);
         clock.increment();
-        S.merge(Sm);
-        System.out.println("Deliver: " + message + ", " + Sm.buffer.toString() + ", " + clock.stamp().toString());
-        for (Message m : B) {
+        S.merge(message.Sm);
+        System.out.println("Deliver: " + message.message + ", " + message.Sm.buffer.toString() + ", " + message.timestamp.toString());
+        List<Message> BCopy = new ArrayList<>(B);
+        for (Message m : BCopy) {
             if (canDeliver(m.Sm)) {
-                clock.update(m.timestamp);
-                clock.increment();
-                S.merge(m.Sm);
-                System.out.println("Deliver: " + m.message + ", " + Sm.buffer.toString() + ", " + clock.stamp().toString());
+                deliver(m);
             }
         }
     }
 
     private boolean canDeliver(OrderingBuffer Sm) {
         if (Sm.contains(id)) {
-//            System.out.println(Sm.get(id).toString() + " < " + clock.stamp() + "?");
             return Sm.get(id).leq(clock.stamp());
         }
         return true;

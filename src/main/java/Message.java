@@ -1,5 +1,8 @@
 import java.rmi.RemoteException;
 
+/**
+ * Comprehensive Message type
+ */
 public class Message implements Runnable {
     public OrderingBuffer Sm;
     private final Clock clock;
@@ -7,22 +10,23 @@ public class Message implements Runnable {
     private final int startDelay;
     private final int arrivalDelay;
     private final Node destination;
-    private final Process process;
     public final Timestamp timestamp;
     private final Id destinationId;
 
-    public Message(String message, OrderingBuffer Sm, Clock clock, int startDelay, int arrivalDelay, Node destination, Process process, Timestamp timestamp, Id destinationId) {
+    public Message(String message, OrderingBuffer Sm, Clock clock, int startDelay, int arrivalDelay, Node destination, Timestamp timestamp, Id destinationId) {
         this.Sm = Sm;
         this.message = message;
         this.clock = clock;
         this.startDelay = startDelay;
         this.arrivalDelay = arrivalDelay;
         this.destination = destination;
-        this.process = process;
         this.timestamp = timestamp;
         this.destinationId = destinationId;
     }
 
+    /**
+     * Send the message
+     */
     @Override
     public void run() {
         try {
@@ -35,8 +39,8 @@ public class Message implements Runnable {
         Timestamp stamp = this.clock.stamp();
         System.out.println("Send: " + this.message + ", " + this.Sm.buffer.toString() + ", " + stamp);
 
-        this.Sm.put(this.destinationId, (VectorTimestamp) stamp);
         OrderingBuffer SmCopy = this.Sm.copy();
+        this.Sm.put(this.destinationId, (VectorTimestamp) stamp);
 
         try {
             Thread.sleep(this.arrivalDelay);

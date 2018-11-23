@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Starts a Process.
+ * args[0]: the input file for the Process.
+ *  Type: (process id) (destination id, start delay, end delay)*
+ */
 public class ProcessStarter {
     public static void main(String[] args) throws AlreadyBoundException, RemoteException, FileNotFoundException {
         FileReader fileReader = new FileReader(args[0]);
@@ -20,7 +25,6 @@ public class ProcessStarter {
             int destination = sc.nextInt();
             int startDelay = sc.nextInt();
             int endDelay = sc.nextInt();
-            System.out.println(processId + " -> " + destination + " " + startDelay + " " + endDelay + " " + destination + "");
             processMessages.add(new ProcessMessage(processId + " -> " + destination, startDelay, endDelay, destination));
         }
 

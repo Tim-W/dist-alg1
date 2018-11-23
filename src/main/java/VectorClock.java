@@ -1,7 +1,7 @@
 public class VectorClock implements Clock {
-    private int[] clock;
-    private int index;
-    private int size;
+    private final int[] clock;
+    private final int index;
+    private final int size;
 
     public VectorClock(int index, int size) {
         clock = new int[size];
@@ -20,7 +20,6 @@ public class VectorClock implements Clock {
                 clock[i] = Math.max(clock[i], c.clock[i]);
             }
         }
-//        increment();
     }
 
     public Timestamp stamp() {
